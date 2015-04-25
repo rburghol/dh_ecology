@@ -99,8 +99,8 @@ function dh_ecology_views_data_alter(&$data) {
 }
 
 function dh_ecology_webform_submission_presave($node, &$submission) {
-  if (!module_load_include('inc', 'dh', 'dh_ecology.webform')) { 
-    drupal_set_message("Cannot load dh_ecology.webform"); 
+  if (!module_load_include('inc', 'dh_ecology', 'dh_ecology.webform')) { 
+    drupal_set_message("Cannot load dh_ecology.webform.inc"); 
     return; 
   }
   $wfmap = dh_ecology_webform_getmap();
