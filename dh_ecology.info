@@ -1,0 +1,12 @@
+name = dH Ecology Module
+description = Adds ecology specific data storage
+core = 7.x
+php = 5.3.0
+
+; should only need dh, dh can provide all other dependencies
+dependencies[] = dh
+
+files[] = dh_ecology.admin.inc
+files[] = dh_ecology.webform.inc
+
+version = "7.x-1.01"
