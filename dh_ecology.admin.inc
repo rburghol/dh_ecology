@@ -25,7 +25,7 @@ class dHEcologyIsolateUIController extends EntityDefaultUIController {
   // Extend the 'add' path.
   $items[$this->path . '/add'] = array(
     'title' => 'Add DNA Isolate',
-    'description' => 'A form to enter Plamnt tissue DNA Isolate Data',
+    'description' => 'A form to enter Plant tissue DNA Isolate Data',
     'page callback' => 'entity_ui_get_bundle_add_form',
     'page arguments' => array($this->entityType,$this->id_count + 1),
     'access callback' => 'entity_access',

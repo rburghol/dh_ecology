@@ -3,7 +3,7 @@
 //Implement hook_entity_info().
 
 function dh_ecology_entity_info() {
-
+  $return = array();
   $return['dh_ecology_isolate'] = array(
     'label' => t('dH Ecology Isolate'),
     'entity class' => 'dHEcologyIsolate',
@@ -95,7 +95,6 @@ function dh_ecology_views_data_alter(&$data) {
    //   $data['dh_ecology_isolate'][$thiscol]['filter'] = array('handler' => 'views_handler_filter_date');
    //}
 
-
 }
 
 function dh_ecology_webform_submission_presave($node, &$submission) {
@@ -108,7 +107,7 @@ function dh_ecology_webform_submission_presave($node, &$submission) {
     return; 
   }
   $wfmap = dh_ecology_webform_getmap();
-  dh_webform_handler($node, &$submission, $wfmap);
+  dh_webform_handler($node, $submission, $wfmap);
 }
 
 class dHEcologyIsolate extends Entity {
@@ -151,3 +150,4 @@ class dHEcologyIsolateController extends EntityAPIControllerExportable {
   }
 }
 
+?>
