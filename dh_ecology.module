@@ -4,21 +4,53 @@
 
 function dh_ecology_entity_info() {
   $return = array();
+  
+  if (db_table_exists('dh_ecology_isolate_type')) {
+  $return['dh_ecology_isolate_type'] = array(
+    'label' => t('dH Ecology Isolate Type'),
+    'entity class' => 'dHEcologyIsolateType',
+    'controller class' => 'dHEcologyIsolateTypeController',
+    'base table' => 'dh_ecology_isolate_type',
+    'fieldable' => TRUE,
+    'bundle of' => 'dh_ecology_isolate',
+    'bundles' => array(),
+    'bundle keys' => array( 
+    ),
+    'exportable' => TRUE,
+    'entity keys' => array (
+       'name' => 'bundle',
+        'id' => 'itid',
+        'label' => 'name',
+    ),
+    'access callback' => 'dh_feature_access',
+    'module' => 'dh_ecology',
+    // Enable the entity API's admin UI.
+    'admin ui' => array(
+      'path' => 'admin/structure/dh_ecology_isolate_type',
+      'file' => 'dh_ecology.admin.inc',
+      'controller class' => 'dHEcologyIsolateTypeUIController',
+    ),
+  );
+  }
+
   $return['dh_ecology_isolate'] = array(
     'label' => t('dH Ecology Isolate'),
+    // The entity class and controller class extend the classes provided by the
+    // Entity API
     'entity class' => 'dHEcologyIsolate',
     'controller class' => 'dHEcologyIsolateController',
     'base table' => 'dh_ecology_isolate',
     'fieldable' => TRUE,
-   //'bundle of' => '',
     //'exportable' => TRUE,
     'entity keys' => array (
-      'name' => 'isolate',
+      'name' => 'iid',
       'id' => 'iid',
       'label' => 'isolate',
+	    'bundle' => 'bundle',
     ),
     'bundles' => array(),
     'bundle keys' => array(
+	    'bundle' => 'bundle',
     ),
     'property info' => array(),
     'access callback' => 'dh_feature_access',
@@ -30,70 +62,55 @@ function dh_ecology_entity_info() {
       'controller class' => 'dHEcologyIsolateUIController',
     ),
   );
-
+  
   return $return;
 }
 
-// Implements hook_view_data_alter().
 
-function dh_ecology_views_data_alter(&$data) {
+function dh_ecology_entity_info_alter(&$entity_info) {
 
-  // do date setups
-  $defaults_date = array(
-    'field' => array(
-      'handler' => 'views_handler_field_date',
-      'click sortable' => TRUE,
-    ),
-    'sort' => array(
-      'handler' => 'views_handler_sort_date',
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_date',
-    ),
-  );
+  if (db_table_exists('dh_ecology_isolate_type')) {
+    foreach (dh_ecology_isolate_get_types() as $type => $info) {
+    //error_log("Setting type info for $type ");
+      $entity_info['dh_ecology_isolate']['bundles'][$type] = array(
+        'label' => $info->name,
+        'admin' => array(
+          'path' => 'admin/structure/dh_ecology_isolate_type/manage/%dh_ecology_isolate_type',
+          'real path' => 'admin/structure/dh_ecology_isolate_type/manage/' . $type,
+          'bundle argument' => 4,
+          'access arguments' => array('administer dh_ecology_isolate_type types'),
+        ),
+      );
+    }
+  }
+}
 
-   $defaults_numeric = array(
-      'title' => t('Numeric Field'),
-      'help' => t('Numeric Field.'), // The help that appears on the UI,
-      'argument' => array(
-         'handler' => 'views_handler_argument_numeric',
-      ),
-      'field' => array(
-         'handler' => 'views_handler_field_numeric',
-         'click sortable' => TRUE,
-                        'float' => TRUE, // enables advanced formatting options
-      ),
-      'filter' => array(
-         'handler' => 'views_handler_filter_numeric',
-      ),
-      'sort' => array(
-         'handler' => 'views_handler_sort',
-      )
-   );
+function dh_ecology_isolate_get_types($bundle_name = NULL) {
+  // entity_load will get the Entity controller for our model entity and call the load
+  // function of that object - we are loading entities by name here.
+  //error_log("Getting list of dh_ecology_isolate_type");
+  $bundles = entity_load_multiple_by_name('dh_ecology_isolate_type', isset($bundle_name) ? array($bundle_name) : FALSE);
+  return isset($bundle_name) ? reset($bundles) : $bundles;
+}
+
+function dh_ecology_isolate_type_load($bundle) {
+  return dh_ecology_isolate_get_types($bundle);
+}
 
 
-   $numcols = array();
-   $strcols = array();
-   $datecols = array();
-   foreach ($strcols as $thiscol) {
-      $data['dh_ecology_isolate'][$thiscol] = $defaults_string;
-      $data['dh_ecology_isolate'][$thiscol]['title'] = t("Ecology Data $thiscol");
-      $data['dh_ecology_isolate'][$thiscol]['help'] = t("Ecology $thiscol");
-   }
-   foreach ($numcols as $thiscol) {
-      $data['dh_ecology_isolate'][$thiscol] = $defaults_numeric;
-      $data['dh_ecology_isolate'][$thiscol]['title'] = t("Ecology $thiscol");
-      $data['dh_ecology_isolate'][$thiscol]['help'] = t("Ecology $thiscol");
-   }
-   foreach ($datecols as $thiscol) {
-      $data['dh_ecology_isolate'][$thiscol]['field'] = $defaults_date['field'];
-      $data['dh_ecology_isolate'][$thiscol]['sort'] = $defaults_date['sort'];
-      $data['dh_ecology_isolate'][$thiscol]['filter'] = $defaults_date['filter'];
-   }
-
-   //foreach ($datecols as $thiscol) {
-   //   $data['dh_ecology_isolate'][$thiscol]['filter'] = array('handler' => 'views_handler_filter_date');
-   //}
+function dh_ecology_webform_submission_insert($node, $submission) {
+  // do handlers that require access to the sid 
+  if (!module_load_include('module', 'dh')) { 
+    drupal_set_message("Cannot load dH"); 
+    return; 
+  }
+  if (!module_load_include('inc', 'dh_ecology', 'dh_ecology.webform')) { 
+    drupal_set_message("Cannot load dh_ecology.webform.inc"); 
+    return; 
+  }
+  $wfmap = dh_ecology_webform_getmap();
+  dh_webform_handler($node, $submission, $wfmap, 'insert');
+  return;
 
 }
 
@@ -107,8 +124,48 @@ function dh_ecology_webform_submission_presave($node, &$submission) {
     return; 
   }
   $wfmap = dh_ecology_webform_getmap();
-  dh_webform_handler($node, $submission, $wfmap);
+  $submission = dh_webform_handler($node, $submission, $wfmap, 'presave');
+  return;
 }
+
+
+//****************************
+// Contact Type
+//****************************
+
+class dHEcologyIsolateType extends Entity {
+  
+  public $is_new;
+  public $bundle;
+  public $name;
+  public $itid;
+  public $description;
+  
+  public function __construct($values = array()) {
+    parent::__construct($values, 'dh_ecology_isolate_type');
+  }
+  protected function defaultLabel() {
+    return $this->name;
+  }
+
+}
+
+class dHEcologyIsolateTypeController extends EntityAPIControllerExportable {
+  public function __construct($entityType) {
+    parent::__construct($entityType);
+  }
+  public function create(array $values = array()) {
+    // Add values that are specific to our Model
+    $values += array( 
+      'itid' => '',
+      'label' => '',
+      'name' => '',
+    );
+    $feature_type = parent::create($values);
+    return $feature_type;
+  }
+}
+
 
 class dHEcologyIsolate extends Entity {
 
@@ -116,6 +173,7 @@ class dHEcologyIsolate extends Entity {
   public $iid;
   public $isolate;
   public $species;
+  public $bundle;
   public $source;
   public $acquisition_num;
   public $its_sequence;
@@ -140,10 +198,11 @@ class dHEcologyIsolateController extends EntityAPIControllerExportable {
     // Add values that are specific to our Model
     $values += array(
     'isolate' => '',
+    'bundle' => '',
     'species' => '',
     'source' => '',
     'acquisition_num' => '',
-    'its_sequence' => ''
+    'its_sequence' => null
     );
     $feature_type = parent::create($values);
     return $feature_type;

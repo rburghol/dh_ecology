@@ -14,6 +14,14 @@
 // Isolate Table
 //****************************
 
+class dHEcologyIsolateTypeUIController extends EntityDefaultUIController {
+  public function hook_menu() {
+    $items = parent::hook_menu();
+		$items[$this->path]['description'] = 'Manage dH Ecology Isolate type bundles.';
+    return $items;
+  }
+
+}
 class dHEcologyIsolateUIController extends EntityDefaultUIController {
   public function hook_menu() {
     $items = parent::hook_menu();
@@ -21,25 +29,32 @@ class dHEcologyIsolateUIController extends EntityDefaultUIController {
     // Change the overview menu type for the list of models.
     $items[$this->path]['type'] = MENU_LOCAL_TASK;
 
-	
-  // Extend the 'add' path.
-  $items[$this->path . '/add'] = array(
-    'title' => 'Add DNA Isolate',
-    'description' => 'A form to enter Plant tissue DNA Isolate Data',
-    'page callback' => 'entity_ui_get_bundle_add_form',
-    'page arguments' => array($this->entityType,$this->id_count + 1),
-    'access callback' => 'entity_access',
-    'access arguments' => array('create', $this->entityType),
-    'type' => MENU_LOCAL_ACTION,
-  );
+    // Extend the 'add' path.
+    $items[$this->path . '/add'] = array(
+      'title callback' => 'entity_ui_get_action_title',
+      'title arguments' => array('add', $this->entityType),
+      'page callback' => 'entity_ui_bundle_add_page',
+      'page arguments' => array($this->entityType),
+      'access callback' => 'entity_access',
+      'access arguments' => array('create', $this->entityType),
+      'type' => MENU_LOCAL_ACTION,
+    );
+    $items[$this->path . '/add/%'] = array(
+      'title callback' => 'entity_ui_get_action_title',
+      'title arguments' => array('add', $this->entityType, $this->id_count + 1),
+      'page callback' => 'entity_ui_get_bundle_add_form',
+      'page arguments' => array($this->entityType, $this->id_count + 1),
+      'access callback' => 'entity_access',
+      'access arguments' => array('create', $this->entityType),
+    );
 
-  if (!empty($this->entityInfo['admin ui']['file'])) {
-    // Add in the include file for the entity form.
-    foreach (array('/add', '/add/%') as $path_end) {
-      $items[$this->path . $path_end]['file'] = $this->entityInfo['admin ui']['file'];
-      $items[$this->path . $path_end]['file path'] = isset($this->entityInfo['admin ui']['file path']) ? $this->entityInfo['admin ui']['file path'] : drupal_get_path('module', $this->entityInfo['module']);
+    if (!empty($this->entityInfo['admin ui']['file'])) {
+      // Add in the include file for the entity form.
+      foreach (array('/add', '/add/%') as $path_end) {
+        $items[$this->path . $path_end]['file'] = $this->entityInfo['admin ui']['file'];
+        $items[$this->path . $path_end]['file path'] = isset($this->entityInfo['admin ui']['file path']) ? $this->entityInfo['admin ui']['file path'] : drupal_get_path('module', $this->entityInfo['module']);
+      }
     }
-  }
       
     return $items;
   }	
@@ -53,6 +68,62 @@ function dh_ecology_field_default_field_instances() {
 
 // FORM Stuff
 
+/**
+ * dH Isolate Type editing form.
+ */
+function dh_ecology_isolate_type_form($form, &$form_state, $dh_ecology_isolate_type, $op = 'edit') {
+
+  if ($op == 'clone') {
+    $dh_ecology_isolate_type->name .= ' (cloned)';
+    $dh_ecology_isolate_type->bundle = '';
+  }
+
+  $form['name'] = array(
+    '#title' => t('Admin Entity Name'),
+    '#type' => 'textfield',
+    '#default_value' => $dh_ecology_isolate_type->name,
+    '#description' => t('The human-readable name of this dH Feature type.'),
+    '#required' => TRUE,
+    '#size' => 30,
+  );
+  // Machine-readable type name.
+  $form['bundle'] = array(
+    '#title' => t('Bundle Name'),
+	  '#type' => 'machine_name',
+    '#default_value' => isset($dh_ecology_isolate_type->bundle) ? $dh_ecology_isolate_type->bundle : '',
+    '#maxlength' => 32,
+    '#machine_name' => array(
+      'exists' => 'dh_ecology_isolate_get_types',
+      'source' => array('label'),
+    ),
+    '#description' => t('A unique machine-readable name for this type. It must only contain lowercase letters, numbers, and underscores.'),
+  );
+
+  $form['description'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $dh_ecology_isolate_type->description,
+    '#description' => t('Detailed description of this dH Isolate type.'),
+    '#required' => FALSE,
+    '#size' => 255,
+  );
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save dH Isolate type'),
+    '#weight' => 40,
+  );
+
+  return $form;
+}
+/**
+ * Form API submit callback for the type form.
+ */
+function dh_ecology_isolate_type_form_submit(&$form, &$form_state) {
+  $dh_ecology_isolate_type = entity_ui_form_submit_build_entity($form, $form_state);
+  $dh_ecology_isolate_type->save();
+  $form_state['redirect'] = 'admin/structure/dh_ecology_isolate_type';
+}
 /**
  * dH Ecology editing form.
  */
@@ -109,13 +180,40 @@ function dh_ecology_isolate_form($form, &$form_state, $dh_ecology_isolate, $op =
     '#size' => 64,
   );
 
-  $form['its_sequence'] = array(
-    '#title' => t('ITS Sequence'),
+  $form['sequence'] = array(
+    '#title' => t('DNA Sequence'),
     '#type' => 'textarea',
-    '#default_value' => $dh_ecology_isolate->its_sequence,
-    '#description' => t('ITS Sequence.'),
+    '#default_value' => $dh_ecology_isolate->sequence,
+    '#description' => t('DNA Sequence.'),
     '#required' => FALSE,
     '#size' => 5,
+  );
+  if ( ($dh_ecology_isolate->sequence_location === null) or ($dh_ecology_isolate->sequence_location == '') ) {
+    if ($dh_ecology_isolate->bundle == 'dh_ecology_isolate') {
+      $dh_ecology_isolate->sequence_location = 'unknown';
+    } else {
+      $dh_ecology_isolate->sequence_location = $dh_ecology_isolate->bundle;
+    }
+  }
+  $form['sequence_location'] = array(
+    '#title' => t('Sequence Location'),
+    '#type' => 'textfield',
+    '#default_value' => $dh_ecology_isolate->sequence_location,
+    '#description' => t("Sequence Location (use 'unknown' if unknown)."),
+    '#required' => FALSE,
+    '#maxlength' => 64,
+  );
+  // Machine-readable type name.
+  $form['bundle'] = array(
+    '#title' => t('Bundle Name'),
+	  '#type' => 'machine_name',
+    '#default_value' => isset($dh_ecology_isolate->bundle) ? $dh_ecology_isolate->bundle : '',
+    '#maxlength' => 32,
+    '#machine_name' => array(
+      'exists' => 'dh_ecology_isolate_get_types',
+      'source' => array('label'),
+    ),
+    '#description' => t('A unique machine-readable name for this type. It must only contain lowercase letters, numbers, and underscores.'),
   );
 
   field_attach_form('dh_ecology_isolate', $dh_ecology_isolate, $form, $form_state);

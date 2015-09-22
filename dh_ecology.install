@@ -1,15 +1,28 @@
 <?php
 
 function dh_ecology_schema() {
-   // 
-   $schema['dh_ecology_isolate'] = array (
-     'description' => 'Repository of plant sample DNA isolate',
-     'fields' => array(
-       'iid' => array(
-         'description' => 'Isolate ID - Primary key for Variables',
-         'type' => 'serial',
-         'unsigned' => TRUE,
-         'not null' => TRUE,
+  // 
+  // temp//
+	if (db_field_exists('dh_ecology_isolate', 'sequence')) {
+    $seqcol = 'sequence';
+  } else {
+    $seqcol = 'its_sequence';
+  }
+  $schema['dh_ecology_isolate'] = array (
+    'description' => 'Repository of plant sample DNA isolate',
+    'fields' => array(
+      'iid' => array(
+        'description' => 'Isolate ID - Primary key for Variables',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'source' => array(
+        'description' => 'Data Source (lab or collector)',
+         'type' => 'varchar',
+         'length' => 128,
+         'not null' => FALSE,
+         'default' => '',
        ),
       'isolate' => array(
          'description' => 'Isolate Unique Text Identifier',
@@ -25,13 +38,6 @@ function dh_ecology_schema() {
          'not null' => FALSE,
          'default' => '',
        ),
-      'source' => array(
-         'description' => 'Data Source (lab or collector)',
-         'type' => 'varchar',
-         'length' => 128,
-         'not null' => FALSE,
-         'default' => '',
-       ),
       'acquisition_num' => array(
          'description' => 'Acquisition Number (Gen Bank)',
          'type' => 'varchar',
@@ -39,14 +45,21 @@ function dh_ecology_schema() {
          'not null' => FALSE,
          'default' => '',
        ),
-      'its_sequence' => array(
-         'description' => 'ITS Sequence',
+      $seqcol => array(
+         'description' => 'DNA Sequence',
          'type' => 'text',
          'size' => 'big',
          'not null' => FALSE,
          'default' => '',
          'translatable' => false,
        ),
+      'bundle' => array(
+        'description' => 'Isolate Type / Location / Bundle (machine name)) ',
+        'type' => 'varchar',
+		    'length' => 64,
+        'not null' => TRUE,
+		    'default' => 'dh_ecology_isolate',
+      ),
 
      ) + entity_exportable_schema_fields(),
      'primary key' => array('iid'),
@@ -56,7 +69,54 @@ function dh_ecology_schema() {
        'de_iso_six' => array('source'),
        'de_iso_spix' => array('species'),
        'de_iso_aix' => array('acquisition_num'),
-       'de_iso_itsix' => array('its_sequence'),
+       'de_iso_itsix' => array($seqcol),
+    )
+  );
+	if (db_field_exists('dh_ecology_isolate', 'sequence_location')) {
+    $schema['dh_ecology_isolate']['sequence_location'] = array(
+      'description' => 'Sequence Location ',
+      'type' => 'varchar',
+      'length' => 64,
+      'not null' => TRUE,
+      'default' => 'undefined',
+    );
+  }
+  
+  $schema['dh_ecology_isolate_type'] = array (
+    'description' => 'Repository of plant sample DNA isolate',
+    'fields' => array(
+      'itid' => array(
+         'description' => 'Isolate Type ID - Primary key',
+         'type' => 'serial',
+         'unsigned' => TRUE,
+         'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Isolate Type Name ',
+        'type' => 'varchar',
+		    'length' => 64,
+        'not null' => TRUE,
+		    'default' => '',
+      ),
+      'bundle' => array(
+        'description' => 'Isolate Type / Bundle (machine name)) ',
+        'type' => 'varchar',
+		    'length' => 64,
+        'not null' => TRUE,
+		    'default' => 'dh_ecology_isolate',
+      ),
+      'description' => array(
+        'description' => 'Description of this Isolate Class',
+        'type' => 'varchar',
+		    'length' => 255,
+        'not null' => TRUE,
+		    'default' => '',
+      ),
+    ) + entity_exportable_schema_fields(),
+    'primary key' => array('itid'),
+    'indexes' => array(
+      'de_isot_iix' => array('itid'),
+      'de_isot_bix' => array('bundle'),
     )
   );
 
@@ -69,23 +129,43 @@ function dh_ecology_uninstall() {
 
 function dh_ecology_references() {
   $refdefs = array();
+  $feature_bundles = dh_feature_get_types();
   // add references
   $refdefs[] = array(
     'fieldname' => 'dh_link_isolate_mps',
     'src_type' => 'dh_ecology_isolate',
     'src_bundle' => 'dh_ecology_isolate',
     'dest_type' => 'dh_feature',
+    // could link to all features but not yet implemented
+    //'dest_bundle' => $feature_bundles,
     'dest_bundle' => array('plant_tissue_sample'),
     'label' => 'Source Plant Tissue Sample',
     'select_type' => 'entityreference_autocomplete'
   );
-
+  
+  // link sample point to submittal
+  $refdefs[] = array(
+    'fieldname' => 'dh_link_feature_submittal',
+    'src_type' => 'dh_adminreg_feature',
+    'src_bundle' => 'submittal',
+    'dest_type' => 'dh_feature',
+    'dest_bundle' => 'plant_tissue_sample',
+    'label' => 'Link Submittal Record to dH Feature',
+    'select_type' => 'entityreference_autocomplete'
+  );
+  
   return $refdefs;
 }
 
-function dh_ecology_install() {
+function dh_ecology_install() {  
+  // shared ID key
+  //$thistable = 'dh_ecology_isolate';
+  //db_query("alter table {$thistable} alter column iid set default nextval('{dh_feature}_hydroid_seq')");
+  // hack to make this work
+  //db_query("insert into {dh_adminreg_feature} (admincode,name,bundle,status) values('dummy','dummy','facility','expired'); ");
   // add bundles
   dh_ecology_add_bundles();
+  dh_ecology_isolate_add_bundles();
   //dh_ecology_add_views();
   
   // add references
@@ -113,6 +193,74 @@ function dh_ecology_add_bundles() {
     //dh_initialize_fields($key);
   }
 }
+
+function dh_ecology_isolate_add_bundles() {
+  $iso_types = dh_define_isolate_bundles();
+  foreach ($iso_types as $tn => $thistype) {
+    if ($e = entity_create('dh_ecology_isolate_type', $thistype)) {
+      $e->save();
+    } else {
+      drupal_set_message("Failed adding bundle $tn - $e: </pre>" . print_r($thistype,1) . "</pre>");
+    }
+  }
+}
+function dh_define_isolate_bundles() {
+  $typedefs = array(
+    'dh_ecology_isolate' => array('bundle' => 'dh_ecology_isolate', 'name' => 'Default Isolate Type', 'description' => 'dH Basic Isolate'),
+    'its' => array('bundle' => 'its', 'name' => 'ITS Sequence', 'description' => 'ITS Sequence'),
+  );
+  return $typedefs;
+}
+
+function dh_ecology_isolate_type_save($info) {
+  // set the base dh_ecology_isolate_type entries
+  // modeled after node_type_save
+  $existing_type = !empty($info['old_bundle']) ? $info['old_bundle'] : $info['bundle'];
+  $is_existing = (bool) db_query_range('SELECT 1 FROM {dh_ecology_isolate_type} WHERE bundle = :bundle', 0, 1, array(':bundle' => $existing_type))->fetchField();
+
+  $fields = array(
+    'bundle' => $info['bundle'],
+    'name' => $info['name'],
+    'description' => $info['description'],
+  );
+
+  if ($is_existing) {
+  error_log("Updating an existing bundle"); 
+    db_update('dh_ecology_isolate_type')
+      ->fields($fields)
+      ->condition('bundle', $existing_type)
+      ->execute();
+
+    if (!empty($info['old_bundle']) && $info['old_bundle'] != $info['bundle']) {
+      field_attach_rename_bundle('dh_ecology_isolate', $info['old_bundle'], $info['bundle']);
+    }
+	 // need equivalent?
+    //module_invoke_all('node_type_update', $type);
+    $status = SAVED_UPDATED;
+  }
+  else {
+    db_insert('dh_ecology_isolate_type')
+      ->fields($fields)
+      ->execute();
+
+    field_attach_create_bundle('dh_ecology_isolate', $info['bundle']);
+
+    $status = SAVED_NEW;
+  }
+
+  // Clear the node type cache.
+  // hmmm ... do we need to supply an equivalent to this?
+  // node_type_cache_reset();
+  dh_ecology_isolate_type_cache_reset();
+
+  return $status;
+}
+
+function dh_ecology_isolate_type_cache_reset() {
+  cache_clear_all('dh_ecology_isolate_type:', 'cache', TRUE);
+  //drupal_static_reset('_node_types_build');
+}
+
 
 function dh_ecology_define_views() {
   $views = array();
@@ -143,10 +291,63 @@ function dh_ecology_add_views($views = array()) {
   }
 }
   
-/*
 function dh_ecology_update_7101() {
-  db_query("alter table {dh_timeseries_weather} add column tsendtime bigint default 0 ");
-  drupal_set_message(t("Added and initialized default on dh_timeseries_weather tsendtime column."));
-}
+// this seems not to be needed as submittal can connect to any feature
+/*
+  $refdefs = array();
+  // link sample point to submittal
+  $refdefs[] = array(
+    'fieldname' => 'dh_link_feature_submittal',
+    'src_type' => 'dh_adminreg_feature',
+    'src_bundle' => 'submittal',
+    'dest_type' => 'dh_feature',
+    'dest_bundle' => 'plant_tissue_sample',
+    'label' => 'Link Submittal Record to dH Feature',
+    'select_type' => 'entityreference_autocomplete'
+  );
+  dh_add_references($refdefs, false);
 */
+}
 
+function dh_ecology_update_7102() {
+  db_query("alter table {dh_ecology_isolate} add column bundle varchar(64) default 'dh_ecology_isolate'");
+}
+
+function dh_ecology_update_7103() {
+  $schema = dh_ecology_schema();
+	if (!db_table_exists('dh_ecology_isolate_type')) {
+    db_create_table('dh_ecology_isolate_type', $schema['dh_ecology_isolate_type']);
+  }
+	if (!db_field_exists('dh_ecology_isolate', 'bundle')) {
+    db_query("alter table {dh_ecology_isolate} add column bundle varchar(64) default 'dh_ecology_isolate'");
+  }
+  db_query("alter table {dh_ecology_isolate} alter column bundle set default 'dh_ecology_isolate'");
+}
+
+function dh_ecology_update_7105() {
+  $schema = dh_ecology_schema();
+	if (!db_table_exists('dh_ecology_isolate_type')) {
+    db_create_table('dh_ecology_isolate_type', $schema['dh_ecology_isolate_type']);
+  }
+}
+
+function dh_ecology_update_7108() {
+  dh_ecology_isolate_add_bundles();
+}
+
+function dh_ecology_update_7109() {
+  // rename its_sequence to sequence
+	if (db_field_exists('dh_ecology_isolate', 'its_sequence')) {
+    db_query("alter table {dh_ecology_isolate} rename column its_sequence TO sequence ");
+  }
+  // sequence_location 
+  db_query("alter table {dh_ecology_isolate} add column sequence_location varchar(64) default 'unknown' ");
+  // create bundle its_sequence - sequence_location = its
+  $tn = 'its';
+  $thistype = array('bundle' => 'its', 'name' => 'ITS Sequence', 'description' => 'ITS Sequence');
+  if ($e = entity_create('dh_ecology_isolate_type', $thistype)) {
+    $e->save();
+  } else {
+    drupal_set_message("Failed adding bundle $tn - $e: </pre>" . print_r($thistype,1) . "</pre>");
+  }
+}
