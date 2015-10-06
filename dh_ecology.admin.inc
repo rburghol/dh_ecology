@@ -62,6 +62,64 @@ class dHEcologyIsolateUIController extends EntityDefaultUIController {
 
 function dh_ecology_field_default_field_instances() {
   $field_instances = array();
+
+  // Exported field_instance: 'om_data_table-om_data_table-field_om_data_starttime'
+  $field_instances['dh_ecology_isolate-modified'] = array(
+    'bundle' => 'dh_ecology_isolate',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'date',
+        'settings' => array(
+          'format_type' => 'long',
+          'fromto' => 'both',
+          'multiple_from' => '',
+          'multiple_number' => '',
+          'multiple_to' => '',
+        ),
+        'type' => 'date_default',
+        'weight' => 1,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'dh_ecology_isolate',
+    'field_name' => 'modified',
+    'label' => 'Time',
+    'required' => 0,
+    'settings' => array(
+      'default_value' => 'now',
+      'default_value2' => 'same',
+      'default_value_code' => '',
+      'default_value_code2' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'date',
+      'settings' => array(
+        'display_all_day' => 0,
+        'increment' => 15,
+        'input_format' => 'm/d/Y - H:i:s',
+        'input_format_custom' => '',
+        'label_position' => 'above',
+        'text_parts' => array(),
+        'year_range' => '-3:+3',
+      ),
+      'type' => 'date_text',
+      'weight' => 1,
+    ),
+  );
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Start Time');
+
   return $field_instances;
 }
 
@@ -160,6 +218,18 @@ function dh_ecology_isolate_form($form, &$form_state, $dh_ecology_isolate, $op =
     '#description' => t('Identified Species of sample DNA.'),
     '#required' => FALSE,
     '#size' => 64,
+  );
+  $form['ecology'] = array(
+    '#title' => t('Ecology'),
+    '#type' => 'select',
+    '#default_value' => $dh_ecology_isolate->ecology,
+    '#options' => array(
+      'unknown' => t('Unknown'),
+      'pathogen' => t('Pathogen'),
+      'nonpathogen' => t('Non-pathogen'),
+    ),
+    '#description' => t('Ecology'),
+    '#required' => FALSE,
   );
 
   $form['source'] = array(

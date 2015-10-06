@@ -176,9 +176,13 @@ class dHEcologyIsolate extends Entity {
   public $bundle;
   public $source;
   public $acquisition_num;
-  public $its_sequence;
+  public $sequence;
+  public $ecology;
 
   public function __construct($values = array()) {
+    if (!isset($values['modified'])) {
+      $values['modified'] = date('U');
+    }
     parent::__construct($values, 'dh_ecology_isolate');
   }
 
@@ -201,11 +205,17 @@ class dHEcologyIsolateController extends EntityAPIControllerExportable {
     'bundle' => '',
     'species' => '',
     'source' => '',
+    'ecology' => '',
     'acquisition_num' => '',
-    'its_sequence' => null
+    'sequence' => null
     );
     $feature_type = parent::create($values);
     return $feature_type;
+  }  
+  
+  public function save($entity, DatabaseTransaction $transaction = NULL) {
+    $entity->modified = date('U');
+    return parent::save($entity, $transaction);
   }
 }
 

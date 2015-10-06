@@ -53,6 +53,19 @@ function dh_ecology_schema() {
          'default' => '',
          'translatable' => false,
        ),
+      'ecology' => array(
+        'description' => 'Ecology Type (pathogen/non-pathogen/unknown))) ',
+        'type' => 'varchar',
+		    'length' => 64,
+        'not null' => TRUE,
+		    'default' => 'unknown',
+      ),
+      'modified' => array(
+        'description' => 'Modified Date',
+			  'type' => 'int',
+			  'not null' => FALSE,
+			  'size' => 'big',
+      ),
       'bundle' => array(
         'description' => 'Isolate Type / Location / Bundle (machine name)) ',
         'type' => 'varchar',

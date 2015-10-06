@@ -5,8 +5,10 @@ php = 5.3.0
 
 ; should only need dh, dh can provide all other dependencies
 dependencies[] = dh
+dependencies[] = dh_adminreg
 
 files[] = dh_ecology.admin.inc
 files[] = dh_ecology.webform.inc
+files[] = views/dh_ecology.views.inc
 
-version = "7.x-1.01"
+version = "7.x-1.08"
