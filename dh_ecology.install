@@ -3,7 +3,7 @@
 function dh_ecology_schema() {
   // 
   // temp//
-	if (db_field_exists('dh_ecology_isolate', 'sequence')) {
+  if (db_field_exists('dh_ecology_isolate', 'sequence')) {
     $seqcol = 'sequence';
   } else {
     $seqcol = 'its_sequence';
@@ -38,8 +38,36 @@ function dh_ecology_schema() {
          'not null' => FALSE,
          'default' => '',
        ),
+      'genus' => array(
+         'description' => 'Genus',
+         'type' => 'varchar',
+         'length' => 255,
+         'not null' => FALSE,
+         'default' => '',
+       ),
+      'host_organism' => array(
+         'description' => 'Host',
+         'type' => 'varchar',
+         'length' => 255,
+         'not null' => FALSE,
+         'default' => '',
+       ),
       'acquisition_num' => array(
          'description' => 'Acquisition Number (Gen Bank)',
+         'type' => 'varchar',
+         'length' => 32,
+         'not null' => FALSE,
+         'default' => '',
+       ),
+      'primer_f' => array(
+         'description' => 'Primer (forward)',
+         'type' => 'varchar',
+         'length' => 32,
+         'not null' => FALSE,
+         'default' => '',
+       ),
+      'primer_r' => array(
+         'description' => 'Primer (reverse)',
          'type' => 'varchar',
          'length' => 32,
          'not null' => FALSE,

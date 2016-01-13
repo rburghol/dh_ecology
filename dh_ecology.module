@@ -178,6 +178,10 @@ class dHEcologyIsolate extends Entity {
   public $acquisition_num;
   public $sequence;
   public $ecology;
+  public $genus;
+  public $host_organism;
+  public $primer_f;
+  public $primer_r;
 
   public function __construct($values = array()) {
     if (!isset($values['modified'])) {
@@ -206,6 +210,10 @@ class dHEcologyIsolateController extends EntityAPIControllerExportable {
     'species' => '',
     'source' => '',
     'ecology' => '',
+    'genus' => '',
+    'host_organism' => '',
+    'primer_f' => '',
+    'primer_r' => '',
     'acquisition_num' => '',
     'sequence' => null
     );

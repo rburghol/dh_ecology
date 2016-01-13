@@ -40,7 +40,19 @@ function dh_ecology_views_data_alter(&$data) {
   );
 
   $numcols = array();
-  $strcols = array();
+  $strcols = array(
+    'isolate',
+    'bundle',
+    'species',
+    'source',
+    'ecology',
+    'genus',
+    'host_organism',
+    'primer_f',
+    'primer_r',
+    'acquisition_num',
+    'sequence'
+  );
   $datecols = array('modified');
   foreach ($strcols as $thiscol) {
     $data['dh_ecology_isolate'][$thiscol] = $defaults_string;
