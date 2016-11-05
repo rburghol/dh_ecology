@@ -88,6 +88,13 @@ function dh_ecology_schema() {
         'not null' => TRUE,
 		    'default' => 'unknown',
       ),
+      'sequence_location' => array(
+        'description' => 'Sequence Location ',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'default' => 'undefined',
+      ),
       'modified' => array(
         'description' => 'Modified Date',
 			  'type' => 'int',
@@ -118,7 +125,7 @@ function dh_ecology_schema() {
       'description' => 'Sequence Location ',
       'type' => 'varchar',
       'length' => 64,
-      'not null' => TRUE,
+      'not null' => FALSE,
       'default' => 'undefined',
     );
   }

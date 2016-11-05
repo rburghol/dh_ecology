@@ -893,7 +893,7 @@ function dh_webform_td_full_submittal() {
     'fields' => array( 
       array('webform_reftype' => 'form_key', 'refvalue' => 'vdesc_vineyard_name', 'fieldname' => 'name'),
       array('webform_reftype' => 'constant', 'refvalue' => 'trunk', 'fieldname' => 'ftype'),
-      array('webform_reftype' => 'form_key', 'refvalue' => 'vsample_image', 'fieldname' => 'field_image'),
+      array('webform_reftype' => 'file_form_key', 'refvalue' => 'vsample_image', 'fieldname' => 'field_image'),
       array('webform_reftype' => 'entity_reference_formkey', 'refvalue' => 'userid', 'fieldname'=> 'dh_link_feature_mgr_id'),
     ),
     'resultid' => 'vsample_mp',

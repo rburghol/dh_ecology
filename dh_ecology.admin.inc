@@ -206,16 +206,23 @@ function dh_ecology_isolate_form($form, &$form_state, $dh_ecology_isolate, $op =
     '#title' => t('Isolate Code'),
     '#type' => 'textfield',
     '#default_value' => $dh_ecology_isolate->isolate,
-    '#description' => t('Isolate Text ID code for sample.'),
+    '#description' => t('Unique Isolate Text ID code for sample.'),
     '#required' => TRUE,
     '#size' => 64,
   );
-
+  $form['genus'] = array(
+    '#title' => t('Genus'),
+    '#type' => 'textfield',
+    '#default_value' => $dh_ecology_isolate->genus,
+    '#description' => t('Identified Genus of sample DNA.'),
+    '#required' => FALSE,
+    '#size' => 64,
+  );
   $form['species'] = array(
     '#title' => t('Species'),
     '#type' => 'textfield',
     '#default_value' => $dh_ecology_isolate->species,
-    '#description' => t('Identified Species of sample DNA.'),
+    '#description' => t('Identified Specific Epithet of sample DNA.'),
     '#required' => FALSE,
     '#size' => 64,
   );
@@ -245,7 +252,7 @@ function dh_ecology_isolate_form($form, &$form_state, $dh_ecology_isolate, $op =
     '#title' => t('Acquisition Number'),
     '#type' => 'textfield',
     '#default_value' => $dh_ecology_isolate->acquisition_num,
-    '#description' => t('Aquisition Number.'),
+    '#description' => t('Acquisition Number.'),
     '#required' => FALSE,
     '#size' => 64,
   );
@@ -265,29 +272,52 @@ function dh_ecology_isolate_form($form, &$form_state, $dh_ecology_isolate, $op =
       $dh_ecology_isolate->sequence_location = $dh_ecology_isolate->bundle;
     }
   }
+  $locs = array(
+    'UNK' => 'Unknown',
+    'LSU' => 'LSU',
+    'SSU' => 'SSU',
+    'COX2' => 'COX2',
+    'ACT' => 'ACT',
+    'APN2' => 'APN2',
+    'CAL' => 'CAL',
+    'TUB2' => 'TUB2',
+    'CHS-1' => 'CHS-1',
+    'CO1' => 'CO1',
+    'GAPDH' => 'GAPDH',
+    'GS' => 'GS',
+    'TEF' => 'TEF',
+    'HIS3' => 'HIS3',
+    'SPD2' => 'SPD2',
+    'Ypt1' => 'Ypt1',
+    'MAT' => 'MAT',
+    'RPB1' => 'RPB1',
+    'RPB2' => 'RPB2',
+    'ITS' => 'ITS',
+    'IGS1' => 'IGS1',
+  );
   $form['sequence_location'] = array(
     '#title' => t('Sequence Location'),
-    '#type' => 'textfield',
+    '#type' => 'select',
     '#default_value' => $dh_ecology_isolate->sequence_location,
     '#description' => t("Sequence Location (use 'unknown' if unknown)."),
+    '#options' => $locs,
     '#required' => FALSE,
     '#maxlength' => 64,
   );
   // Machine-readable type name.
-  $form['bundle'] = array(
-    '#title' => t('Bundle Name'),
-	  '#type' => 'machine_name',
-    '#default_value' => isset($dh_ecology_isolate->bundle) ? $dh_ecology_isolate->bundle : '',
-    '#maxlength' => 32,
-    '#machine_name' => array(
-      'exists' => 'dh_ecology_isolate_get_types',
-      'source' => array('label'),
-    ),
-    '#description' => t('A unique machine-readable name for this type. It must only contain lowercase letters, numbers, and underscores.'),
-  );
-
+  //$form['bundle'] = array(
+  //  '#title' => t('Bundle Name'),
+	//  '#type' => 'machine_name',
+  //  '#default_value' => isset($dh_ecology_isolate->bundle) ? $dh_ecology_isolate->bundle : '',
+  //  '#maxlength' => 32,
+  //  '#machine_name' => array(
+  //    'exists' => 'dh_ecology_isolate_get_types',
+  //    'source' => array('label'),
+  //  ),
+  //  '#description' => t('A unique machine-readable name for this type. It must only contain //lowercase letters, numbers, and underscores.'),
+  //);
   field_attach_form('dh_ecology_isolate', $dh_ecology_isolate, $form, $form_state);
-
+  $form['dh_link_isolate_mps']['#type'] = 'hidden';
   $form['data']['#tree'] = TRUE;
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(

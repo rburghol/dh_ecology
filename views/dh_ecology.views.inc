@@ -51,7 +51,8 @@ function dh_ecology_views_data_alter(&$data) {
     'primer_f',
     'primer_r',
     'acquisition_num',
-    'sequence'
+    'sequence',
+    'sequence_location',
   );
   $datecols = array('modified');
   foreach ($strcols as $thiscol) {

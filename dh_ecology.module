@@ -53,7 +53,8 @@ function dh_ecology_entity_info() {
 	    'bundle' => 'bundle',
     ),
     'property info' => array(),
-    'access callback' => 'dh_feature_access',
+    //'access callback' => 'dh_feature_access',
+    'access callback' => 'dh_ecology_access',
     'module' => 'dh_ecology',
     // Enable the entity API's admin UI.
     'admin ui' => array(
@@ -97,6 +98,65 @@ function dh_ecology_isolate_type_load($bundle) {
   return dh_ecology_isolate_get_types($bundle);
 }
 
+function dh_ecology_permission() {
+
+  $permissions = array(
+    'administer dh_ecology types' => array(
+      'title' => t('Administer dH Ecology types'),
+      'description' => t('Allows users to configure dH Ecology types and their fields.'),
+      'restrict access' => FALSE,
+    ),
+    'create dh_ecology entities' => array(
+      'title' => t('Create dH Ecology entities'),
+      'description' => t('Allows users to create dH Ecology entities.'),
+      'restrict access' => FALSE,
+    ),
+    'view dh_ecology entities' => array(
+      'title' => t('View dH Ecology types'),
+      'description' => t('Allows users to view dH Ecology types.'),
+      'restrict access' => FALSE,
+    ),
+    'edit any dh_ecology entities' => array(
+      'title' => t('Edit any dH Ecology types'),
+      'description' => t('Allows users to edit any dH Ecology types.'),
+      'restrict access' => FALSE,
+    ),
+    'delete any dh_ecology entities' => array(
+      'title' => t('Delete any dH Ecology Entities'),
+      'description' => t('Allows users to delete any dH Ecology Entities.'),
+      'restrict access' => FALSE,
+    ),
+  );
+  return $permissions;
+}
+
+function dh_ecology_access($op, $entity, $account, $entity_type) {
+  global $user;
+  // can we insert request to find ownership eref;s here?  This would allow us finegrained control!
+  //drupal_set_message("Called dh_feature_access $op, " . print_r((array)$entity,1) . ", $account, $entity_type");
+  //error_log("Called dh_feature_access $op, " . print_r((array)$entity,1) . ", " .  print_r((array)$account,1) . ", $entity_type");
+  if (!isset($account)) {
+    $account = $user;
+  }
+  switch ($op) {
+    case 'create':
+    return user_access('administer dh_ecology entities', $account)
+        || user_access('create dh_ecology entities', $account);
+    case 'view':
+    return user_access('administer dh_ecology entities', $account)
+        || user_access('view dh_ecology entities', $account);
+    case 'delete':
+    return user_access('administer dh_ecology entities', $account)
+        || user_access('delete any dh_ecology entities', $account)
+        || user_access('delete own dh_ecology entities', $account);
+    case 'edit':
+    case 'update':
+    return user_access('administer dh_ecology entities')
+        || user_access('edit any dh_ecology entities')
+        || (user_access('edit own dh_ecology entities') && ($entity->uid == $account->uid));
+  }
+  return user_access('administer dh_ecology types');
+}
 
 function dh_ecology_webform_submission_insert($node, $submission) {
   // do handlers that require access to the sid 
@@ -177,6 +237,7 @@ class dHEcologyIsolate extends Entity {
   public $source;
   public $acquisition_num;
   public $sequence;
+  public $sequence_location;
   public $ecology;
   public $genus;
   public $host_organism;
@@ -215,7 +276,8 @@ class dHEcologyIsolateController extends EntityAPIControllerExportable {
     'primer_f' => '',
     'primer_r' => '',
     'acquisition_num' => '',
-    'sequence' => null
+    'sequence' => null,
+    'sequence_location' => ''
     );
     $feature_type = parent::create($values);
     return $feature_type;
