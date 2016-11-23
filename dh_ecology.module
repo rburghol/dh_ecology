@@ -243,6 +243,7 @@ class dHEcologyIsolate extends Entity {
   public $host_organism;
   public $primer_f;
   public $primer_r;
+  public $uid;
 
   public function __construct($values = array()) {
     if (!isset($values['modified'])) {
@@ -264,6 +265,7 @@ class dHEcologyIsolateController extends EntityAPIControllerExportable {
   }
 
   public function create(array $values = array()) {
+    global $user;
     // Add values that are specific to our Model
     $values += array(
     'isolate' => '',
@@ -279,6 +281,9 @@ class dHEcologyIsolateController extends EntityAPIControllerExportable {
     'sequence' => null,
     'sequence_location' => ''
     );
+    if (!isset($values['uid'])) {
+      $values['uid'] = $user->uid;
+    }
     $feature_type = parent::create($values);
     return $feature_type;
   }  

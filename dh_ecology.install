@@ -108,6 +108,12 @@ function dh_ecology_schema() {
         'not null' => TRUE,
 		    'default' => 'dh_ecology_isolate',
       ),
+      'uid' => array(
+        'description' => 'Record Owner',
+			  'type' => 'int',
+			  'not null' => FALSE,
+			  'size' => 'big',
+      ),
 
      ) + entity_exportable_schema_fields(),
      'primary key' => array('iid'),
@@ -398,4 +404,11 @@ function dh_ecology_update_7109() {
   } else {
     drupal_set_message("Failed adding bundle $tn - $e: </pre>" . print_r($thistype,1) . "</pre>");
   }
+}
+
+function dh_ecology_update_7110() {
+  $schema = dh_ecology_schema();
+  $uid = $schema['dh_ecology_isolate']['fields']['uid'];
+  dpm($uid, 'Adding uid field');
+  db_add_field( 'dh_ecology_isolate', 'uid', $uid);
 }
