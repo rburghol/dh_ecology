@@ -43,7 +43,7 @@ function dh_ecology_entity_info() {
     'fieldable' => TRUE,
     //'exportable' => TRUE,
     'entity keys' => array (
-      'name' => 'iid',
+    //  'name' => 'iid',
       'id' => 'iid',
       'label' => 'isolate',
 	    'bundle' => 'bundle',
