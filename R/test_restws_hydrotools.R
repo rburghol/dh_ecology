@@ -13,9 +13,9 @@ ds$get_token(rest_w_pass)
 #   EntityDrupalWrapper->set() (line 736 of 
 #   /var/www/d.live/modules/entity/includes/entity.wrapper.inc).
 dhw <- ds$get(
-  'dh_timeseries_weather', 
-  'tid', 
-  list(featureid = 34, tstime = 1522872900, entity_type = 'dh_feature')
+  'dh_ecology_isolate', 
+  'iid', 
+  list(iid = 498)
 )
 
 
