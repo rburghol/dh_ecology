@@ -96,6 +96,12 @@ function dh_ecology_schema() {
         'default' => 'undefined',
       ),
       'modified' => array(
+        'description' => 'Type Specimen',
+			  'type' => 'int',
+			  'not null' => FALSE,
+			  'size' => 'small',
+      ),
+      'modified' => array(
         'description' => 'Modified Date',
 			  'type' => 'int',
 			  'not null' => FALSE,
@@ -411,4 +417,9 @@ function dh_ecology_update_7110() {
   $uid = $schema['dh_ecology_isolate']['fields']['uid'];
   dpm($uid, 'Adding uid field');
   db_add_field( 'dh_ecology_isolate', 'uid', $uid);
+}
+
+function dh_ecology_update_7111() {
+  // type_specimen 
+  db_query("alter table {dh_ecology_isolate} add column type_specimen INTEGER default 0 ");
 }
