@@ -309,7 +309,7 @@ function dh_ecology_isolate_form($form, &$form_state, $dh_ecology_isolate, $op =
     '#type' => 'select',
     '#default_value' => $dh_ecology_isolate->type_specimen,
     '#description' => t("When a study is published describing a species, the authors designate a single isolate as the essential member of that species, to which all other purported members of that species must be compared in order to confirm their identity."),
-    '#options' => array(0 => 'True', 1 => 'False'),
+    '#options' => array(0 => 'False', 1 => 'True'),
     '#required' => FALSE,
     '#maxlength' => 64,
   );
