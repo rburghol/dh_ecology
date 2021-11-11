@@ -1,7 +1,8 @@
 #!/user/bin/env drush
 <?php
-  module_load_include('inc', 'dh', 'plugins/dh.display');
-  $handle = fopen("/var/www/d.live/modules/dh_ecology/data/type_specs.txt");
+  //module_load_include('inc', 'dh', 'plugins/dh.display');
+  $file = "/var/www/d.live/modules/dh_ecology/data/type_specs.txt";
+  $handle = fopen($file, 'r');
   $update_props = TRUE;
   $i = 0;
   while ($values = fgetcsv($handle, 0, "\t")) {
