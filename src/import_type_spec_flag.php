@@ -5,6 +5,7 @@
   $i = 0;
   while ($values = fgetcsv($handle, 0, "\t")) {
     $i++;
+    error_log( "Record # $i");
     if ($i == 1) {
       // skip a header 
       continue;
