@@ -23,11 +23,11 @@
       array(), 
       array('fetch' => PDO::FETCH_ASSOC)
     );
-    $recs = $rez->fetchAllAssoc('tid');
+    $recs = $rez->fetchAllAssoc('iid');
     //dpm($recs, 'recs');
     if (count($recs) == 1) {
       $iirec = array_shift($recs);
-      $isolate_record = entity_load_single('dh_ecology_isolate', $iirec->iid);
+      $isolate_record = entity_load_single('dh_ecology_isolate', $iirec['iid']);
       error_log("Loaded record iid = " . $isolate_record->iid . " for '$isolate'. ");
     } else {
       error_log("Found " . count($recs) . " records for '$isolate'. Skipping.");
