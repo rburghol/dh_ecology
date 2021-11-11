@@ -1,3 +1,4 @@
+#!/user/bin/env drush
 <?php
   module_load_include('inc', 'dh', 'plugins/dh.display');
   $handle = fopen("/var/www/d.live/modules/dh_ecology/data/type_specs.txt");
