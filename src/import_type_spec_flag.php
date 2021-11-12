@@ -15,7 +15,7 @@
     list($isolate, $source, $type_specimen) = $values;
     // sql to search for record 
     $q = "  select iid from dh_ecology_isolate ";
-    $q .= " where isolate = '$isolate' and source = '$source' ";
+    $q .= " where isolate = '$isolate' ";
     error_log( $q);
     // Load some entity.
     $rez = db_query(
