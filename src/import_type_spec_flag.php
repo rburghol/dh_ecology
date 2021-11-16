@@ -34,6 +34,7 @@
           $isolate_record->type_specimen = 1;
           $isolate_record->save();
         }
+      }
     } else {
       error_log("Found " . count($recs) . " records for '$isolate'. Skipping.");
       if (count($recs) == 0) {
