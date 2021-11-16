@@ -30,7 +30,7 @@
       foreach ($recs as $iirec) {
         $isolate_record = entity_load_single('dh_ecology_isolate', $iirec['iid']);
         error_log("Loaded record iid = " . $isolate_record->iid . " for '$isolate' with type_specimen = $type_specimen . ");
-        if (strtoupper($type_specimen) == 'TRUE') {
+        if (strtoupper(trim($type_specimen)) == 'TRUE') {
           $isolate_record->type_specimen = 1;
           $isolate_record->save();
         }
