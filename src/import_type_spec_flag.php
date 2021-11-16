@@ -5,6 +5,7 @@
   $handle = fopen($file, 'r');
   $update_props = TRUE;
   $i = 0;
+  $no_match = array();
   while ($values = fgetcsv($handle, 0, "\t")) {
     $i++;
     error_log( "Record # $i");
@@ -31,10 +32,13 @@
       error_log("Loaded record iid = " . $isolate_record->iid . " for '$isolate'. ");
     } else {
       error_log("Found " . count($recs) . " records for '$isolate'. Skipping.");
+      if (count($recs) == 0) {
+        $no_match[] = $values;
+      }
     }
     
     //$dh_adminreg_feature->save();
     //echo "saved $record->name \n";
   }
-  
+  error_log("No matches found for: " . print_r($no_match));
 ?>
