@@ -26,10 +26,14 @@
     );
     $recs = $rez->fetchAllAssoc('iid');
     //dpm($recs, 'recs');
-    if (count($recs) == 1) {
-      $iirec = array_shift($recs);
-      $isolate_record = entity_load_single('dh_ecology_isolate', $iirec['iid']);
-      error_log("Loaded record iid = " . $isolate_record->iid . " for '$isolate'. ");
+    if (count($recs) >= 1) {
+      foreach ($recs as $iirec) {
+        $isolate_record = entity_load_single('dh_ecology_isolate', $iirec['iid']);
+        error_log("Loaded record iid = " . $isolate_record->iid . " for '$isolate'. ");
+        if (strtoupper($type_specimen) == 'TRUE') {
+          $isolate_record->type_specimen = 1;
+          $isolate_record->save();
+        }
     } else {
       error_log("Found " . count($recs) . " records for '$isolate'. Skipping.");
       if (count($recs) == 0) {
