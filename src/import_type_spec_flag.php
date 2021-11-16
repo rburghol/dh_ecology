@@ -33,6 +33,7 @@
         if (strtoupper(trim($type_specimen)) == 'TRUE') {
           $isolate_record->type_specimen = 1;
           $isolate_record->save();
+          error_log("Saving ");
         }
       }
     } else {
