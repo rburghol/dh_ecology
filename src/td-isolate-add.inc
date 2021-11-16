@@ -5,6 +5,7 @@ function dh_lab_isolate_form($form, &$form_state, $dh_ecology_isolate = null, $o
     $dh_ecology_isolate->name .= ' (cloned)';
     $dh_ecology_isolate->bundle = '';
   }
+  dpm($dh_ecology_isolate, 'isolate');
   $form['isolate'] = array(
     '#title' => t('Isolate Code'),
     '#type' => 'textfield',
