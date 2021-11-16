@@ -243,6 +243,7 @@ class dHEcologyIsolate extends Entity {
   public $host_organism;
   public $primer_f;
   public $primer_r;
+  public $type_specimen;
   public $uid;
 
   public function __construct($values = array()) {
