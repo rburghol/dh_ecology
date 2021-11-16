@@ -280,7 +280,8 @@ class dHEcologyIsolateController extends EntityAPIControllerExportable {
     'primer_r' => '',
     'acquisition_num' => '',
     'sequence' => null,
-    'sequence_location' => ''
+    'sequence_location' => '',
+    'type_specimen' => '0'
     );
     if (!isset($values['uid'])) {
       $values['uid'] = $user->uid;
