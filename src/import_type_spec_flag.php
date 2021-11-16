@@ -40,5 +40,5 @@
     //$dh_adminreg_feature->save();
     //echo "saved $record->name \n";
   }
-  error_log("No matches found for: " . print_r($no_match));
+  error_log("No matches found for: " . print_r($no_match,1));
 ?>
