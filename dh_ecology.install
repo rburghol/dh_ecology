@@ -115,7 +115,7 @@ function dh_ecology_schema() {
 		    'default' => 'dh_ecology_isolate',
       ),
       'type_specimen' => array(
-        'description' => 'Type Speciment',
+        'description' => 'Type Specimen',
 			  'type' => 'int',
 			  'not null' => FALSE,
 			  'size' => 'small',
