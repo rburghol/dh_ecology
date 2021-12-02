@@ -239,6 +239,15 @@ function dh_ecology_isolate_form($form, &$form_state, $dh_ecology_isolate, $op =
     '#required' => FALSE,
   );
 
+  $form['host_organism'] = array(
+    '#title' => t('Host common name'),
+    '#type' => 'textfield',
+    '#default_value' => $dh_ecology_isolate->host_organism,
+    '#description' => t('Common name of the host plant from which this organism was obtained.'),
+    '#required' => FALSE,
+    '#size' => 64,
+  );
+
   $form['source'] = array(
     '#title' => t('Sample Source'),
     '#type' => 'textfield',
@@ -334,6 +343,26 @@ function dh_ecology_isolate_form($form, &$form_state, $dh_ecology_isolate, $op =
     '#value' => t('Save Isolate'),
     '#weight' => 40,
   );
+  switch ($op) {
+    case 'add':
+    $form['actions']['cancel'] = array(
+      '#type' => 'submit',
+      '#value' => t('Cancel'),
+      '#weight' => 45,
+      '#limit_validation_errors' => array(),
+      '#submit' => array('dh_lab_isolate_form_submit_cancel')
+    );
+    break;
+    case 'edit':
+    $form['actions']['delete'] = array(
+      '#type' => 'submit',
+      '#value' => t('Delete'),
+      '#weight' => 45,
+      '#limit_validation_errors' => array(),
+      '#submit' => array('dh_lab_isolate_form_submit_delete')
+    );
+    break;
+  }
   return $form;
 
 }

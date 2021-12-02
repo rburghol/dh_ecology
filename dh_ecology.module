@@ -22,7 +22,7 @@ function dh_ecology_entity_info() {
         'id' => 'itid',
         'label' => 'name',
     ),
-    'access callback' => 'dh_feature_access',
+    'access callback' => 'dh_ecology_type_access',
     'module' => 'dh_ecology',
     // Enable the entity API's admin UI.
     'admin ui' => array(
@@ -158,6 +158,11 @@ function dh_ecology_access($op, $entity, $account, $entity_type) {
   return user_access('administer dh_ecology types');
 }
 
+function dh_ecology_type_access($op, $type = NULL, $account = NULL) {
+  //return TRUE;
+  return user_access('administer dh_ecology types');
+}
+
 function dh_ecology_webform_submission_insert($node, $submission) {
   // do handlers that require access to the sid 
   if (!module_load_include('module', 'dh')) { 
@@ -243,6 +248,7 @@ class dHEcologyIsolate extends Entity {
   public $host_organism;
   public $primer_f;
   public $primer_r;
+  public $type_specimen;
   public $uid;
 
   public function __construct($values = array()) {
@@ -279,7 +285,8 @@ class dHEcologyIsolateController extends EntityAPIControllerExportable {
     'primer_r' => '',
     'acquisition_num' => '',
     'sequence' => null,
-    'sequence_location' => ''
+    'sequence_location' => '',
+    'type_specimen' => '0'
     );
     if (!isset($values['uid'])) {
       $values['uid'] = $user->uid;

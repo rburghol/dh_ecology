@@ -1,43 +1,50 @@
+#!/user/bin/env drush
 <?php
-  module_load_include('inc', 'dh', 'plugins/dh.display');
-  $csv = fopen("/var/www/d.live/modules/dh_ecology/data/type_specs.txt");
+  //module_load_include('inc', 'dh', 'plugins/dh.display');
+  $file = "/var/www/d.live/modules/dh_ecology/data/type_specs.txt";
+  $handle = fopen($file, 'r');
   $update_props = TRUE;
-  // sql to get records with redundant erefs
-  $q = "  select adminid from dh_adminreg_feature ";
-  $q .= " where bundle = 'registration' and ftype in ('fungicide', 'herbicide', 'insecticide', 'other', 'fertilizer') ";
-  if ($uid <> -1) {
-    $q .= " and uid = $uid ";
-  }
-  if ($elist <> '') {
-    $q .= " and adminid in ($elist) ";
-  }
-  $result = db_query($q);
-  // If we want to do a single one uncomment these lines:
-  /* 
-  $result = array(
-    0 => new STDClass,
-  );
-  $result[0]->adminid = 299;
-  */
-  echo $q;
-  
-  foreach ($result as $record) {
-    // get events
-    // Load some entity.
-    $dh_adminreg_feature = entity_load_single('dh_adminreg_feature', $record->adminid);
-    if ($update_props) {
-      $ipm_vt_pmg_material = array(
-        'varkey' => 'ipm_vt_pmg_material',
-        'featureid' => $dh_adminreg_feature->adminid,
-        'entity_type' => 'dh_adminreg_feature',
-        'propcode' => '',
-        'propname' => 'ipm_vt_pmg_material'
-      );
-      //error_log("Saving frac controller " . print_r($frac_group,1));
-      om_model_getSetProperty($ipm_vt_pmg_material, 'name');
+  $i = 0;
+  $no_match = array();
+  while ($values = fgetcsv($handle, 0, "\t")) {
+    $i++;
+    error_log( "Record # $i");
+    if ($i == 1) {
+      // skip a header 
+      continue;
     }
+    list($isolate, $source, $type_specimen) = $values;
+    // sql to search for record 
+    $q = "  select iid from dh_ecology_isolate ";
+    $q .= " where isolate = '$isolate' ";
+    error_log( $q);
+    // Load some entity.
+    $rez = db_query(
+      $q, 
+      array(), 
+      array('fetch' => PDO::FETCH_ASSOC)
+    );
+    $recs = $rez->fetchAllAssoc('iid');
+    //dpm($recs, 'recs');
+    if (count($recs) >= 1) {
+      foreach ($recs as $iirec) {
+        $isolate_record = entity_load_single('dh_ecology_isolate', $iirec['iid']);
+        error_log("Loaded record iid = " . $isolate_record->iid . " for '$isolate' with type_specimen = $type_specimen . ");
+        if (strtoupper(trim($type_specimen)) == 'TRUE') {
+          $isolate_record->type_specimen = 1;
+          $isolate_record->save();
+          error_log("Saving ");
+        }
+      }
+    } else {
+      error_log("Found " . count($recs) . " records for '$isolate'. Skipping.");
+      if (count($recs) == 0) {
+        $no_match[] = $values;
+      }
+    }
+    
     //$dh_adminreg_feature->save();
-    echo "saved $record->name \n";
+    //echo "saved $record->name \n";
   }
-  
+  error_log("No matches found for: " . print_r($no_match,1));
 ?>

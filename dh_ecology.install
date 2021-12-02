@@ -114,6 +114,12 @@ function dh_ecology_schema() {
         'not null' => TRUE,
 		    'default' => 'dh_ecology_isolate',
       ),
+      'type_specimen' => array(
+        'description' => 'Type Specimen',
+			  'type' => 'int',
+			  'not null' => FALSE,
+			  'size' => 'small',
+      ),
       'uid' => array(
         'description' => 'Record Owner',
 			  'type' => 'int',
