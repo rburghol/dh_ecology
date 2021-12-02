@@ -22,7 +22,7 @@ function dh_ecology_entity_info() {
         'id' => 'itid',
         'label' => 'name',
     ),
-    'access callback' => 'dh_feature_access',
+    'access callback' => 'dh_ecology_type_access',
     'module' => 'dh_ecology',
     // Enable the entity API's admin UI.
     'admin ui' => array(
@@ -155,6 +155,11 @@ function dh_ecology_access($op, $entity, $account, $entity_type) {
         || user_access('edit any dh_ecology entities')
         || (user_access('edit own dh_ecology entities') && ($entity->uid == $account->uid));
   }
+  return user_access('administer dh_ecology types');
+}
+
+function dh_ecology_type_access($op, $type = NULL, $account = NULL) {
+  //return TRUE;
   return user_access('administer dh_ecology types');
 }
 
